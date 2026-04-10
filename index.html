@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perpustakaan Digital</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; }
+    header { background-color: #2c3e50; color: white; padding: 15px; text-align: center; }
+    nav { background: #34495e; padding: 10px; text-align: center; }
+    nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; }
+    .container { padding: 20px; }
+    .book { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    button { background-color: #27ae60; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-top:5px; }
+    button:hover { background-color: #219150; }
+    .hapus { background-color: #e74c3c; }
+    .pinjam { background-color: #2980b9; }
+    input, select { padding: 8px; width: 80%; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Perpustakaan Digital</h1>
+  <p>Sistem Perpustakaan Digital Modern</p>
+</header>
+
+<nav>
+  <a href="#">Beranda</a>
+  <a href="#">Daftar Buku</a>
+</nav>
+
+<div class="container">
+  <h2>Tambah Buku</h2>
+  <input type="text" id="judul" placeholder="Judul Buku">
+  <input type="text" id="penulis" placeholder="Penulis">
+
+  <select id="jenis">
+    <option value="">Pilih Jenis Buku</option>
+    <option>Novel</option>
+    <option>Komik</option>
+    <option>Majalah</option>
+    <option>Ensiklopedia</option>
+  </select>
+
+  <select id="kategori">
+    <option value="">Pilih Kategori</option>
+    <option>Fiksi</option>
+    <option>Non-Fiksi</option>
+    <option>Pendidikan</option>
+    <option>Teknologi</option>
+    <option>Sejarah</option>
+  </select>
+
+  <br>
+  <button onclick="tambahBuku()">Tambah</button>
+
+  <h2>Buku Favorit</h2>
+  <div class="book">
+    <h3>Home Sweet Loan</h3>
+    <img src="C:\Users\HP\Pictures\brd-22526_novel-metropop-home-sweet-loan-home-weet-loan-almira-bastari_full01-aae83a16.webp" alt="Home Sweet Loan">
+    <p>Jenis: Novel</p>
+  </div>
+
+  <div class="book">
+    <h3>11:11</h3>
+    <img src="C:\Users\HP\Pictures\109652_f.jpg" alt="11:11">
+    <p>Jenis: Novel</p>
+  </div>
+
+  <div class="book">
+    <h3>Cantik Itu Luka</h3>
+    <img src="C:\Users\HP\Pictures\ID_GPU2018MTH01CILLE.jpg" alt="Cantik Itu Luka">
+    <p>Jenis: Novel</p>
+  </div>
+
+  <h2>Daftar Buku</h2>
+  <div id="daftarBuku"></div>
+</div>
+
+<script>
+  let buku = [];
+
+  function tambahBuku() {
+    const judul = document.getElementById('judul').value;
+    const penulis = document.getElementById('penulis').value;
+    const kategori = document.getElementById('kategori').value;
+    const jenis = document.getElementById('jenis').value;
+
+    if (judul === '' || penulis === '' || kategori === '' || jenis === '') {
+      alert('Harap isi semua field!');
+      return;
+    }
+
+    buku.push({ judul, penulis, kategori, jenis, status: 'Tersedia', peminjam: '', durasi: '' });
+    tampilkanBuku();
+
+    document.getElementById('judul').value = '';
+    document.getElementById('penulis').value = '';
+    document.getElementById('kategori').value = '';
+    document.getElementById('jenis').value = '';
+  }
+
+  function tampilkanBuku() {
+    const container = document.getElementById('daftarBuku');
+    container.innerHTML = '';
+
+    buku.forEach((item, index) => {
+      container.innerHTML += `
+        <div class="book">
+          <h3>${item.judul}</h3>
+          <p>Penulis: ${item.penulis}</p>
+          <p>Jenis: ${item.jenis}</p>
+          <p>Kategori: ${item.kategori}</p>
+          <p>Status: <b>${item.status}</b></p>
+          ${item.status === 'Dipinjam' ? `<p>Peminjam: ${item.peminjam}</p><p>Durasi: ${item.durasi} hari</p>` : ''}
+
+          ${item.status === 'Tersedia' ? `
+            <input type="text" placeholder="Nama Peminjam" id="peminjam-${index}">
+            <input type="number" placeholder="Durasi (hari)" id="durasi-${index}">
+            <button class="pinjam" onclick="pinjamBuku(${index})">Pinjam</button>
+          ` : `
+            <button onclick="kembalikanBuku(${index})">Kembalikan</button>
+          `}
+
+          <br>
+          <button class="hapus" onclick="hapusBuku(${index})">Hapus</button>
+        </div>
+      `;
+    });
+  }
+
+  function hapusBuku(index) {
+    buku.splice(index, 1);
+    tampilkanBuku();
+  }
+
+  function pinjamBuku(index) {
+    const nama = document.getElementById(`peminjam-${index}`).value;
+    const durasi = document.getElementById(`durasi-${index}`).value;
+
+    if (nama === '' || durasi === '') {
+      alert('Isi nama dan durasi!');
+      return;
+    }
+
+    buku[index].status = 'Dipinjam';
+    buku[index].peminjam = nama;
+    buku[index].durasi = durasi;
+    tampilkanBuku();
+  }
+
+  function kembalikanBuku(index) {
+    buku[index].status = 'Tersedia';
+    buku[index].peminjam = '';
+    buku[index].durasi = '';
+    tampilkanBuku();
+  }
+</script>
+
+</body>
+</html>
